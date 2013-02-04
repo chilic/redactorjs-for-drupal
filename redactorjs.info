@@ -1,0 +1,6 @@
+name = redactorjs
+core = "6.x"
+package = drupal.by
+description = Fantastic WYSIWYG editor on jQuery
+
+dependencies[] = jquery_update

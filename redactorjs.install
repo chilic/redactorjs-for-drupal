@@ -1,0 +1,82 @@
+<?php
+
+/**
+ * @file
+ * Installs, updates, and uninstalls BUEditor.
+ */
+
+/**
+ * Implementation of hook_install()
+ */
+function redactorjs_install() {
+  drupal_install_schema('redactorjs');
+  drupal_set_message(t('!module has been installed.', array('!module' => l('Redactor JS', 'admin/settings/redactorjs'))));
+  //workaround for #200931
+  $GLOBALS['redactorjs_just_installed'] = TRUE;
+}
+
+/**
+ * Implementation of hook_enable()
+ */
+function redactorjs_enable() {
+  if (isset($GLOBALS['redactorjs_just_installed'])) {
+    db_query("INSERT INTO {redactorjs_editors} (name) VALUES ('Deafault')");
+  }
+}
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function redactorjs_uninstall() {
+  drupal_uninstall_schema('redactorjs');
+  variable_del('redactorjs_user1');
+  variable_del('redactorjs_user1_alt');
+  variable_del('redactorjs_roles');
+  variable_del('redactorjs_langs');
+}
+
+/**
+ * Implementation of hook_schema().
+ */
+function redactorjs_schema() {
+  $schema['redactorjs_editors'] = array(
+    'description' => 'Stores editors and their settings.',
+    'fields' => array(
+      'eid' => array(
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'description' => 'Primary Key: Unique editor ID.',
+      ),
+      'name' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => 'Noname',
+        'description' => 'The editor name.',
+      ),
+      'pages' => array(
+        'type' => 'text',
+        'not null' => TRUE,
+        'description' => 'Drupal paths on which the editor is visible.',
+      ),
+      'excludes' => array(
+        'type' => 'text',
+        'not null' => TRUE,
+        'description' => 'Textarea ids for which the editor is not visible.',
+      ),
+      'options' => array(
+        'type' => 'text',
+        'size' => 'big',
+        'not null' => TRUE,
+        'description' => 'Other redactorjs options.',
+      ),
+    ),
+    'primary key' => array('eid'),
+    'indexes' => array(
+      'name' => array('name'),
+    ),
+  );
+
+  return $schema;
+}
