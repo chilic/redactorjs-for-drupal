@@ -17,15 +17,11 @@
 
           return html;
         }
-
-        // Register imageUploadCallback
-        Drupal.settings.redactorjs.imagePreUploadCallback = redactorjs_imagePreUploadCallback;
       }
 
       $(".redactorjs-processed").each(function (i) {
         var settings = Drupal.settings.redactorjs;
         settings.uploadFields = {"field_name": $(this).attr("name"), "form_build_id": $(this).closest("form").find('input[name="form_build_id"]').attr("id")};
-        $(this).next(".grippie").css("display", "none");
         $(this).redactor(settings);
       });
     });

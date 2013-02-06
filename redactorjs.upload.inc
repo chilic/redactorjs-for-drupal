@@ -20,12 +20,22 @@ function redactorjs_upload($type) {
   $file = file_save_upload('file', $validators, $destination);
 
   if ($file) {
-    //if (file_copy($file, $destination, FILE_EXISTS_REPLACE)) {
-      file_set_status($file, FILE_STATUS_PERMANENT);
+    //file_set_status($file, FILE_STATUS_PERMANENT);
+    // Output relative path, for absolute use $base_url
+    $output['filelink'] = $base_path . $file->filepath;
 
-      // Output relative path, for absolute use $base_url
-      $output['filelink'] = $base_path . $file->filepath;
-    //}
+
+    // Add file to cahce
+    // 6 hours cache life time for forms should be plenty.
+    $expire = 21600;
+
+    $cid = 'redactorjs:' . check_plain($_POST['form_build_id']) . ':' . $user->uid;
+    if ($cache = cache_get($cid)) {
+      $files = $cache->data;
+    }
+    $files[check_plain($_POST['field_name'])][$file->fid] = $output['filelink'];
+    cache_set($cid, $files, 'cache', time() + $expire);
+
   }
   else {
     $messages = drupal_get_messages('error');
@@ -33,8 +43,6 @@ function redactorjs_upload($type) {
   }
 
   // @todo сделать привзяку к материалам
-
   drupal_json($output);
-  //echo stripslashes(json_encode($output));
   exit();
 }

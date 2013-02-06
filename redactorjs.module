@@ -86,28 +86,6 @@ function redactorjs_init() {
 }
 
 /**
- * Implements hook_form_alter().
- */
-function redactorjs_form_alter(&$form, &$form_state, $form_id) {
-  // Teaser splitter is unconditionally removed and NOT supported.
-  if (isset($form['body_field'])) {
-    unset($form['body_field']['teaser_js']);
-  }
-
-  //$form['#submit'][] = 'redactorjs_add_files';
-}
-
-function redactorjs_add_files($form, &$form_state) {
-  drupal_set_message(print_r($form_state['values'], 1));
-}
-
-function redactorjs_comment(&$a1, $op) {
-  if ($op == 'insert' || $op == 'update') {
-    drupal_set_message(print_r($a1, 1));
-  }
-}
-
-/**
  * Implements hook_perm().
  */
 function redactorjs_permission() {
@@ -225,8 +203,49 @@ function redactorjs_textarea($element) {
   global $redactorjs;
   if (isset($redactorjs) && !redactorjs_check_match($redactorjs['excludes'], $element['#id'])) {
     $element['#attributes'] = array('class' => 'redactorjs-processed');
+    $element['#resizable'] = FALSE;
   }
   return $element;
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function redactorjs_form_alter(&$form, &$form_state, $form_id) {
+  // Teaser splitter is unconditionally removed and NOT supported.
+  if (isset($form['body_field'])) {
+    unset($form['body_field']['teaser_js']);
+  }
+
+  if (variable_get('ocupload_delete_unused_files', 1) && isset($form['#submit'])) {
+    array_unshift($form['#submit'], 'redactorjs_change_files_status');
+  }
+}
+
+/**
+ * Custom form submit. Change status uploaded files to "permanent".
+ */
+function redactorjs_change_files_status($form, &$form_state) {
+  $cid = 'redactorjs:' . check_plain($form['form_build_id']['#post']['form_build_id']) . ':' . $GLOBALS['user']->uid;
+  if ($cache = cache_get($cid)) {
+    $values = $form_state['values'];
+    foreach ($cache->data as $field_name => $files) {
+      foreach ($files as $fid => $file_name) {
+        drupal_set_message($fid);
+        drupal_set_message($file_name);
+        if (strpos($values[$field_name], $file_name) !== FALSE) {
+          $file->fid = $fid;
+          $file->status = 0;
+          file_set_status($file, FILE_STATUS_PERMANENT);
+          unset($cache->data[$field_name][$fid]);
+        }
+      }
+      if (count($cache->data[$field_name]) == 0) {
+        unset($cache->data[$field_name]);
+      }
+    }
+    cache_set($cid, $cache->data, 'cache', (count($cache->data) > 0) ? $cache->expire : CACHE_TEMPORARY);
+  }
 }
 
 /**
