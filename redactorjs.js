@@ -1,18 +1,33 @@
-/*
-function testButton(obj, event, key)
-{
-  obj.insertHtml('<!--break-->');
-}
-*/
-function redactorjs_imageUploadCallback(obj, json) {
-  console.log('ok');
-}
 
 (function ($) {
   if (Drupal.jsEnabled){
     $(document).ready(function(){
-      $('.redactorjs-processed').next(".grippie").css("display", "none");
-      $('.redactorjs-processed').redactor(Drupal.settings.redactorjs);
+
+      if (typeof Drupal.settings.redactorjs.imageUpload !== 'undefined') {
+
+        // Image insert Callback
+        var redactorjs_imagePreUploadCallback = function(obj, json) {
+          var html = '', data = '';
+          console.log(obj);
+          data = $.parseJSON(json);
+
+          if (typeof data.error === 'undefined') {
+            html = '<p><img src="' + data.filelink + '" /></p>';
+          }
+
+          return html;
+        }
+
+        // Register imageUploadCallback
+        Drupal.settings.redactorjs.imagePreUploadCallback = redactorjs_imagePreUploadCallback;
+      }
+
+      $(".redactorjs-processed").each(function (i) {
+        var settings = Drupal.settings.redactorjs;
+        settings.uploadFields = {"field_name": $(this).attr("name"), "form_build_id": $(this).closest("form").find('input[name="form_build_id"]').attr("id")};
+        $(this).next(".grippie").css("display", "none");
+        $(this).redactor(settings);
+      });
     });
   }
 })(jQuery);

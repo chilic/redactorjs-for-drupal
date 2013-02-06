@@ -81,12 +81,6 @@ function redactorjs_init() {
       $settings['redactorjs']['colors'] = split(',', $settings['redactorjs']['colors']);
     }
 
-
-    // Add image insert callback.
-    if ($settings['redactorjs']['imageUpload']) {
-      drupal_add_js('jQuery.extend(Drupal.settings.redactorjs.imageUploadCallback = redactorjs_imageUploadCallback);', 'inline');
-    }
-
     drupal_add_js($settings, 'setting');
   }
 }
@@ -98,6 +92,18 @@ function redactorjs_form_alter(&$form, &$form_state, $form_id) {
   // Teaser splitter is unconditionally removed and NOT supported.
   if (isset($form['body_field'])) {
     unset($form['body_field']['teaser_js']);
+  }
+
+  //$form['#submit'][] = 'redactorjs_add_files';
+}
+
+function redactorjs_add_files($form, &$form_state) {
+  drupal_set_message(print_r($form_state['values'], 1));
+}
+
+function redactorjs_comment(&$a1, $op) {
+  if ($op == 'insert' || $op == 'update') {
+    drupal_set_message(print_r($a1, 1));
   }
 }
 
@@ -151,9 +157,21 @@ function redactorjs_menu() {
   $items['redactorjs/upload/image'] = array(
     'title' => 'Redactor JS Upload image',
     'description' => 'Upload image',
-    'page callback' => 'redactorjs_upload_image',
+    'page callback' => 'redactorjs_upload',
+    'page arguments' => array(2),
     'access callback' => 'user_access',
     'access arguments' => array('redactorjs upload image'),
+    'type' => MENU_CALLBACK,
+    'file' => 'redactorjs.upload.inc',
+  );
+
+  $items['redactorjs/upload/file'] = array(
+    'title' => 'Redactor JS Upload image',
+    'description' => 'Upload image',
+    'page callback' => 'redactorjs_upload',
+    'page arguments' => array(2),
+    'access callback' => 'user_access',
+    'access arguments' => array('redactorjs upload file'),
     'type' => MENU_CALLBACK,
     'file' => 'redactorjs.upload.inc',
   );
