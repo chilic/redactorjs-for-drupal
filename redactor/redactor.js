@@ -186,6 +186,8 @@ var RLANG = {
 				'#a5a5a5', '#262626', '#494429', '#17365d', '#366092', '#953734', '#76923c', '#5f497a', '#92cddc', '#e36c09', '#c09100',
 				'#7f7f7f', '#0c0c0c', '#1d1b10', '#0f243e', '#244061', '#632423', '#4f6128', '#3f3151', '#31859b', '#974806', '#7f6000'],
 
+      resizeImage: true,
+      breakID: 'drupal-break',
 			// private
 			allEmptyHtml: '<p><br /></p>',
 			mozillaEmptyHtml: '<p>&nbsp;</p>',
@@ -929,6 +931,7 @@ var RLANG = {
 				}
 
 				// enable
+        html = html.replace('<!--break-->', '<h1>break</h1>');
 				this.$editor.html(html);
 
 				if (this.textareamode === false)
@@ -986,14 +989,17 @@ var RLANG = {
 		},
 		syncCode: function()
 		{
-			this.$el.val(this.$editor.html());
+      var html = '';
+      html = this.$editor.html();
+      html = html.replace('<h1>break</h1>', '<!--break-->');
+      console.log(html);
+			this.$el.val(html);
 		},
 
 		// API functions
 		setCode: function(html)
 		{
 			this.$editor.html(html).focus();
-
 			this.syncCode();
 		},
 		getCode: function()
@@ -1051,13 +1057,26 @@ var RLANG = {
 
 			this.$editor.find('img').each($.proxy(function(i,s)
 			{
-				if ($.browser.msie)
-				{
-					$(s).attr('unselectable', 'on');
-				}
+        if ($(s).attr('id') !== this.opts.breakID) {
+          if ($.browser.msie)
+          {
+            $(s).attr('unselectable', 'on');
+          }
 
-				this.resizeImage(s);
-
+          if (this.opts.resizeImage === true) {
+            this.resizeImage(s);
+          }
+          else {
+            $(s).click($.proxy(function(e)	{
+              this.imageEdit(e);
+            }, this));
+          }
+        }
+        else {
+          $(s).click(function() {
+          $(this).select();
+        });
+        }
 			}, this));
 
 		},
@@ -1549,6 +1568,7 @@ var RLANG = {
 				this.$editor.hide();
 
 				html = this.$editor.html();
+        html = html.replace('<h1>break</h1>', '<!--break-->');
 				html = $.trim(this.formatting(html));
 
 				this.$el.height(this.$editor.innerHeight()).val(html).show().focus();
@@ -1562,6 +1582,7 @@ var RLANG = {
 
 
 				var html = this.stripTags(this.$el.val());
+        html = html.replace('<!--break-->','<h1>break</h1>');
 				this.$editor.html(html);
 				this.$editor.show();
 
@@ -2080,7 +2101,7 @@ var RLANG = {
 			var min_w = 10;
 			var min_h = 10;
 
-			$(resize).hover(function() { $(resize).css('cursor', 'nw-resize'); }, function() { $(resize).css('cursor','default'); clicked = false; });
+			$(resize).hover(function() { $(resize).css('cursor', 'nw-resize'); }, function() { $(resize).css('cursor',''); clicked = false; });
 
 			$(resize).mousedown(function(e)
 			{

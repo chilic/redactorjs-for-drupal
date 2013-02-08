@@ -14,7 +14,7 @@ function redactorjs_init() {
   global $redactorjs;
   $redactorjs = FALSE;
 
-  $user_editors = redactorjs_user_eids($_GLOBAL['user']);
+  $user_editors = redactorjs_user_eids($GLOBALS['user']);
 
   if ($user_editors[0] > 0) {
     $redactorjs = redactorjs_editors($user_editors[0]);
@@ -71,9 +71,14 @@ function redactorjs_init() {
       $settings['redactorjs']['buttons'] = split(',', $settings['redactorjs']['buttons']);
     }
 
-    // Add formattingTags.
-    if ($settings['redactorjs']['formattingTags']) {
-      $settings['redactorjs']['formattingTags'] = split(',', $settings['redactorjs']['formattingTags']);
+    // Add airButtons.
+    if ($settings['redactorjs']['airButtons']) {
+      $settings['redactorjs']['airButtons'] = split(',', $settings['redactorjs']['airButtons']);
+    }
+
+    // Add allowedTags.
+    if ($settings['redactorjs']['allowedTags']) {
+      $settings['redactorjs']['allowedTags'] = split(',', $settings['redactorjs']['allowedTags']);
     }
 
     // Add colors.
@@ -203,7 +208,6 @@ function redactorjs_textarea($element) {
   global $redactorjs;
   if (isset($redactorjs) && !redactorjs_check_match($redactorjs['excludes'], $element['#id'])) {
     $element['#attributes'] = array('class' => 'redactorjs-processed');
-    $element['#resizable'] = FALSE;
   }
   return $element;
 }
@@ -217,7 +221,7 @@ function redactorjs_form_alter(&$form, &$form_state, $form_id) {
     unset($form['body_field']['teaser_js']);
   }
 
-  if (variable_get('ocupload_delete_unused_files', 1) && isset($form['#submit'])) {
+  if (isset($form['#submit'])) {
     array_unshift($form['#submit'], 'redactorjs_change_files_status');
   }
 }
@@ -231,8 +235,6 @@ function redactorjs_change_files_status($form, &$form_state) {
     $values = $form_state['values'];
     foreach ($cache->data as $field_name => $files) {
       foreach ($files as $fid => $file_name) {
-        drupal_set_message($fid);
-        drupal_set_message($file_name);
         if (strpos($values[$field_name], $file_name) !== FALSE) {
           $file->fid = $fid;
           $file->status = 0;

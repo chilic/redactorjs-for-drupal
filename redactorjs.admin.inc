@@ -241,22 +241,20 @@ function redactorjs_editor_form($form_state, $eid = NULL) {
     '#type' => 'textarea',
     '#title' => t('Buttons'),
     '#default_value' => $editor['buttons'],
-    '#description' => t("By default, this setting contains the following array of toolbar's buttons:
-      <pre>
-      ['html', '|', 'formatting', '|', 'bold', 'italic', 'deleted', '|',
-'unorderedlist', 'orderedlist', 'outdent', 'indent', '|',
-'image', 'video', 'file', 'table', 'link', '|',
-'fontcolor', 'backcolor', '|', 'alignment', '|', 'horizontalrule']
-
-// additional buttons
-// 'underline', 'alignleft', 'aligncenter', 'alignright', 'justify'
-      </pre>"),
+    '#description' => t("By default, this setting contains the following array of toolbar's buttons:"),
   );
 
-  $form['toolbar']['formattingTags'] = array(
+  $form['toolbar']['airButtons'] = array(
     '#type' => 'textarea',
-    '#title' => t('Formatting Tags'),
-    '#default_value' => $editor['formattingTags'],
+    '#title' => t('Air buttons'),
+    '#default_value' => $editor['airButtons'],
+    //'#description' => t('By default, this setting contains the following array of toolbar's buttons:'),
+  );
+
+  $form['toolbar']['allowedTags'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Allowed tags'),
+    '#default_value' => $editor['allowedTags'],
     //'#description' => t('By default, this setting contains the following array of toolbar's buttons:'),
   );
 
@@ -385,13 +383,6 @@ function redactorjs_editor_form($form_state, $eid = NULL) {
     '#default_value' => $editor['mobile'],
   );
 
-  $form['options']['drupal_break'] = array(
-    '#type' => 'checkbox',
-    '#title' => t('Add drupal teaser break button'),
-    '#default_value' => 1,
-    '#default_value' => $editor['drupal_break'],
-  );
-
   $form['image']['observeImages'] = array(
     '#type' => 'checkbox',
     '#title' => t('Observe Images'),
@@ -469,9 +460,10 @@ function redactorjs_editor_defaults() {
   $editor['fileUpload'] = 0;
   $editor['lang'] = 'auto';
   $editor['direction'] = 'auto';
-  $editor['buttons'] = 'html,|,formatting,|,bold,italic,deleted,|,unorderedlist,orderedlist,outdent,indent,|,image,video,file,table,link,|,fontcolor,backcolor,|,alignment,|,horizontalrule';
-  $editor['formattingTags'] = 'p,blockquote,pre,h1,h2,h3,h4';
+  $editor['buttons'] = 'html,|,formatting,|,bold,italic,deleted,|,unorderedlist,orderedlist,outdent,indent,|,image,video,file,table,link,|,fontcolor,backcolor,|,alignleft,aligncenter,alignright,justify,|,horizontalrule';
+  $editor['airButtons'] = 'formatting,|,bold,italic,deleted,|,unorderedlist,orderedlist,outdent,indent,|,fontcolor,backcolor';
   $editor['colors'] = '#ffffff,#000000,#eeece1,#1f497d,#4f81bd,#c0504d,#9bbb59,#8064a2,#4bacc6,#f79646,#ffff00,#f2f2f2,#7f7f7f,#ddd9c3,#c6d9f0,#dbe5f1,#f2dcdb,#ebf1dd,#e5e0ec,#dbeef3,#fdeada,#fff2ca,#d8d8d8,#595959,#c4bd97,#8db3e2,#b8cce4,#e5b9b7,#d7e3bc,#ccc1d9,#b7dde8,#fbd5b5,#ffe694,#bfbfbf,#3f3f3f,#938953,#548dd4,#95b3d7,#d99694,#c3d69b,#b2a2c7,#b7dde8,#fac08f,#f2c314,#a5a5a5,#262626,#494429,#17365d,#366092,#953734,#76923c,#5f497a,#92cddc,#e36c09,#c09100,#7f7f7f,#0c0c0c,#1d1b10,#0f243e,#244061,#632423,#4f6128,#3f3151,#31859b,#974806,#7f6000';
+  $editor['allowedTags'] = 'code,span,div,label,a,br,p,b,i,del,strike,u,img,video,audio,iframe,object,embed,param,blockquote,mark,cite,small,ul,ol,li,hr,dl,dt,dd,sup,sub,big,pre,code,figure,figcaption,strong,em,table,tr,td,th,tbody,thead,tfoot,h1,h2,h3,h4,h5,h6';
   return $editor;
 }
 
@@ -500,7 +492,7 @@ function redactorjs_editor_form_submit($form, &$form_state) {
 
 function _redactorjs_to_settings($item) {
   if (is_string($item)) {
-    return $item;
+    return str_replace(array(" ", "\r", "\n", '"', "'"), '', $item);
   }
   return $item == 1 ? true : false;
 }

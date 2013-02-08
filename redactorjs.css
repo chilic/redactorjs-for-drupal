@@ -1,3 +1,22 @@
 .redactor_toolbar li {
   background: none;
 }
+
+
+.redactor_editor img#drupal-break {
+  background-image: url("pagebreak.gif");
+  background-position: center center;
+  background-repeat: no-repeat;
+  clear: both;
+  display: block;
+  float: none;
+  height: 5px;
+  width: 100%;
+  border-bottom: 1px dotted #FF0000;
+  border-top: 1px dotted #FF0000;
+  cursor: pointer;
+}
+
+.redactor_toolbar  .redactor_btn_teaser {
+  background-image: url("drupalbreak.png");
+}

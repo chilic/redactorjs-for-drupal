@@ -1,28 +1,24 @@
-
 (function ($) {
   if (Drupal.jsEnabled){
     $(document).ready(function(){
 
-      if (typeof Drupal.settings.redactorjs.imageUpload !== 'undefined') {
-
-        // Image insert Callback
-        var redactorjs_imagePreUploadCallback = function(obj, json) {
-          var html = '', data = '';
-          console.log(obj);
-          data = $.parseJSON(json);
-
-          if (typeof data.error === 'undefined') {
-            html = '<p><img src="' + data.filelink + '" /></p>';
+      Drupal.settings.redactorjs.buttonsCustom = {
+        teaser: {
+          title: 'Teaser break',
+          callback: function(obj, event, key) {
+            obj.insertHtml('<img id="drupal-break" src="/sites/all/modules/redactorjs/spacer.gif"/>');
           }
-
-          return html;
         }
       }
 
       $(".redactorjs-processed").each(function (i) {
         var settings = Drupal.settings.redactorjs;
-        settings.uploadFields = {"field_name": $(this).attr("name"), "form_build_id": $(this).closest("form").find('input[name="form_build_id"]').attr("id")};
+        settings.uploadFields = {
+          "field_name": $(this).attr("name"),
+          "form_build_id": $(this).closest("form").find('input[name="form_build_id"]').attr("id")
+        };
         $(this).redactor(settings);
+        $(this).parent().next(".grippie").css("display", "none");
       });
     });
   }
