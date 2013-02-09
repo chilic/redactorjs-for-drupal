@@ -6,7 +6,14 @@
         teaser: {
           title: 'Teaser break',
           callback: function(obj, event, key) {
-            obj.insertHtml('<img id="drupal-break" src="/sites/all/modules/redactorjs/spacer.gif"/>');
+            var b = $(obj.$editor.find("#drupal-break"));
+            if (b.length == 0) {
+              b = '<img id="drupal-break" src="/sites/all/modules/redactorjs/spacer.gif"/>';
+              obj.insertHtml(b);
+            }
+            else {
+              $(b).remove();
+            }
           }
         }
       }

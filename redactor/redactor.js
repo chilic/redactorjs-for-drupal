@@ -186,6 +186,10 @@ var RLANG = {
 				'#a5a5a5', '#262626', '#494429', '#17365d', '#366092', '#953734', '#76923c', '#5f497a', '#92cddc', '#e36c09', '#c09100',
 				'#7f7f7f', '#0c0c0c', '#1d1b10', '#0f243e', '#244061', '#632423', '#4f6128', '#3f3151', '#31859b', '#974806', '#7f6000'],
 
+      path: '/sites/all/modules/redactorjs/',
+      smiles: ['bw.gif', 'bu.gif', 'bv.gif', 'bt.gif', 'bq.gif', 'br.gif', 'bs.gif', 'bn.gif', 'bo.gif', 'bp.gif', 'bj.gif', 'bk.gif', 'bl.gif', 'bm.gif', 'bi.gif', 'bh.gif', 'be.gif', 'bf.gif', 'bg.gif', 'bd.gif', 'bc.gif', 'az.gif', 'ba.gif', 'bb.gif', 'aw.gif', 'ax.gif', 'ay.gif', 'av.gif', 'au.gif', 'at.gif', 'as.gif', 'ar.gif', 'aq.gif', 'ap.gif', 'ao.gif', 'an.gif', 'am.gif', 'al.gif', 'ak.gif', 'aj.gif', 'ai.gif', 'ah.gif', 'ac.gif', 'ad.gif', 'ae.gif', 'af.gif', 'ag.gif', 'ab.gif', 'aa.gif'],
+      smilesPath: '/sites/all/modules/redactorjs/smiles/',
+
       resizeImage: true,
       breakID: 'drupal-break',
 			// private
@@ -503,6 +507,11 @@ var RLANG = {
 				backcolor:
 				{
 					title: RLANG.backcolor,
+					func: 'show'
+				},
+        smiles:
+				{
+					title: 'Smiles',
 					func: 'show'
 				},
 				alignleft:
@@ -1670,7 +1679,7 @@ var RLANG = {
 					var a = this.buildButton(key, s);
 
 					// dropdown
-					if (key === 'backcolor' || key === 'fontcolor' || typeof(s.dropdown) !== 'undefined')
+					if (key === 'backcolor' || key === 'fontcolor' || key === 'smiles' || typeof(s.dropdown) !== 'undefined')
 					{
 						var dropdown = $('<div class="redactor_dropdown" style="display: none;">');
 
@@ -1678,7 +1687,10 @@ var RLANG = {
 						{
 							dropdown = this.buildColorPicker(dropdown, key);
 						}
-						else
+						else if (key === 'smiles') {
+              dropdown = this.buildSmiles(dropdown);
+            }
+            else
 						{
 							dropdown = this.buildDropdown(dropdown, s.dropdown);
 						}
@@ -1835,6 +1847,29 @@ var RLANG = {
 			}
 
 			$(dropdown).append(elnone);
+
+			return dropdown;
+		},
+    buildSmiles: function(dropdown)
+		{
+			$(dropdown).width(245);
+
+			var len = this.opts.smiles.length;
+			for (var i = 0; i < len; ++i)
+			{
+				var smile = this.opts.smiles[i];
+
+        smile = this.opts.smilesPath + smile;
+
+				var swatch = $('<a rel="' + smile + '" href="javascript:void(null);" class="redactor_smiles_link"></a>').css({ 'background-image': 'url('+smile+')' });
+				$(dropdown).append(swatch);
+
+				var _self = this;
+				$(swatch).click(function()
+				{
+					_self.execCommand('inserthtml', $(this).attr('rel'));
+				});
+			}
 
 			return dropdown;
 		},
