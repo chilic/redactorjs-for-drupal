@@ -191,6 +191,7 @@ var RLANG = {
       smilesPath: '/sites/all/modules/redactorjs/smiles/',
 
       resizeImage: true,
+      breakImage: '/sites/all/modules/redactorjs/pagebreak.gif',
       breakID: 'drupal-break',
 			// private
 			allEmptyHtml: '<p><br /></p>',
@@ -940,7 +941,7 @@ var RLANG = {
 				}
 
 				// enable
-        html = html.replace('<!--break-->', '<h1>break</h1>');
+        html = html.replace('<!--break-->', '<img id="'+this.opts.breakID+'" src="'+this.opts.breakImage+'">');
 				this.$editor.html(html);
 
 				if (this.textareamode === false)
@@ -1000,8 +1001,7 @@ var RLANG = {
 		{
       var html = '';
       html = this.$editor.html();
-      html = html.replace('<h1>break</h1>', '<!--break-->');
-      console.log(html);
+      $(html).find('#'+this.opts.breakID).replaceWith('<!--break-->');
 			this.$el.val(html);
 		},
 
@@ -1066,7 +1066,7 @@ var RLANG = {
 
 			this.$editor.find('img').each($.proxy(function(i,s)
 			{
-        if ($(s).attr('id') !== this.opts.breakID) {
+        if ($(s).attr('id') !== this.opts.breakID & $(s).hasClass('redactor-smile') !== true) {
           if ($.browser.msie)
           {
             $(s).attr('unselectable', 'on');
@@ -1576,8 +1576,9 @@ var RLANG = {
 			{
 				this.$editor.hide();
 
+        this.$editor.find('#'+this.opts.breakID).replaceWith('<!--break-->');
+
 				html = this.$editor.html();
-        html = html.replace('<h1>break</h1>', '<!--break-->');
 				html = $.trim(this.formatting(html));
 
 				this.$el.height(this.$editor.innerHeight()).val(html).show().focus();
@@ -1588,10 +1589,8 @@ var RLANG = {
 			else
 			{
 				this.$el.hide();
-
-
 				var html = this.stripTags(this.$el.val());
-        html = html.replace('<!--break-->','<h1>break</h1>');
+        html = html.replace('<!--break-->','<img id="'+this.opts.breakID+'" src="'+this.opts.breakImage+'">');
 				this.$editor.html(html);
 				this.$editor.show();
 
@@ -1867,7 +1866,9 @@ var RLANG = {
 				var _self = this;
 				$(swatch).click(function()
 				{
-					_self.execCommand('inserthtml', $(this).attr('rel'));
+          var img = '<img class="redactor-smile" src="'+$(this).attr('rel')+'">';
+          //$(img).addClass('redactor-smile');
+					_self.execCommand('inserthtml', img);
 				});
 			}
 
@@ -2625,8 +2626,14 @@ var RLANG = {
 		},
 		imageUploadCallback: function(data)
 		{
-      console.log(data);
-			this._imageSet(data);
+      var tmp = $.parseJSON(data);
+      if (tmp.link === true) {
+        console.log(data);
+        this._imageSet(tmp.filelink, true);
+      }
+      else {
+        this._imageSet(data);
+      }
 		},
 		_imageSet: function(json, link)
 		{

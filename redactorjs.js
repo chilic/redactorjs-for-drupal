@@ -8,7 +8,7 @@
           callback: function(obj, event, key) {
             var b = $(obj.$editor.find("#drupal-break"));
             if (b.length == 0) {
-              b = '<img id="drupal-break" src="/sites/all/modules/redactorjs/spacer.gif"/>';
+              b = '<img id="'+obj.opts.breakID+'" src="'+obj.opts.breakImage+'">';
               obj.insertHtml(b);
             }
             else {

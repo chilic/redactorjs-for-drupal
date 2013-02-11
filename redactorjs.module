@@ -33,13 +33,14 @@ function redactorjs_init() {
   }
 
   if ($page_match) {
+    $redactorjs_path = drupal_get_path('module', 'redactorjs');
     $settings['redactorjs'] = unserialize($redactorjs['options']);
     // Load libraries.
-    drupal_add_js(drupal_get_path('module', 'redactorjs') . '/redactor/redactor.js');
-    drupal_add_css(drupal_get_path('module', 'redactorjs') . '/redactor/redactor.css');
+    drupal_add_js($redactorjs_path . '/redactor/redactor.js');
+    drupal_add_css($redactorjs_path . '/redactor/redactor.css');
 
-    drupal_add_js(drupal_get_path('module', 'redactorjs') . '/redactorjs.js');
-    drupal_add_css(drupal_get_path('module', 'redactorjs') . '/redactorjs.css');
+    drupal_add_js($redactorjs_path . '/redactorjs.js');
+    drupal_add_css($redactorjs_path . '/redactorjs.css');
 
     // Add language settings.
     global $language;
@@ -58,7 +59,7 @@ function redactorjs_init() {
 
     // Include language file.
     if ($settings['redactorjs']['lang']) {
-      drupal_add_js(drupal_get_path('module', 'redactorjs') . '/lang/' . $settings['redactorjs']['lang'] . '.js');
+      drupal_add_js($redactorjs_path . '/lang/' . $settings['redactorjs']['lang'] . '.js');
     }
 
     // Add language direction.
@@ -93,9 +94,11 @@ function redactorjs_init() {
 /**
  * Implements hook_perm().
  */
-function redactorjs_permission() {
+function redactorjs_perm() {
   return array(
     'administer redactorjs',
+    'redactorjs upload image',
+    'redactorjs upload file',
   );
 }
 

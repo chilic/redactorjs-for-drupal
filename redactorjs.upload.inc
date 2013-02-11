@@ -3,6 +3,7 @@
 function redactorjs_upload($type) {
   global $user;
   global $base_path;
+  $maxWidth = 535;
 
   $output = array();
 
@@ -22,8 +23,17 @@ function redactorjs_upload($type) {
   if ($file) {
     //file_set_status($file, FILE_STATUS_PERMANENT);
     // Output relative path, for absolute use $base_url
-    $output['filelink'] = $base_path . $file->filepath;
+    $imageInfo = image_get_info($file->filepath);
 
+    if ($imageInfo['width'] > $maxWidth) {
+      $img = theme('imagecache', 'node_image', $file->filepath, $file->name, $file->name);
+      $output['filelink'] = l($img, $file->filepath, array('html' => TRUE, 'attributes' => array('rel' => 'lightbox')));
+      $output['link'] = true;
+    }
+    else {
+      $output['filelink'] = $base_path . $file->filepath;
+      $output['link'] = false;
+    }
 
     // Add file to cahce
     // 6 hours cache life time for forms should be plenty.
@@ -35,7 +45,6 @@ function redactorjs_upload($type) {
     }
     $files[check_plain($_POST['field_name'])][$file->fid] = $output['filelink'];
     cache_set($cid, $files, 'cache', time() + $expire);
-
   }
   else {
     $messages = drupal_get_messages('error');
